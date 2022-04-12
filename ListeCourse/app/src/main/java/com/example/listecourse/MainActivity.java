@@ -5,41 +5,43 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TableLayout;
 
 import com.example.listecourse.dao.Produit;
+import com.example.listecourse.dao.Produit_ListeCourse;
 import com.example.listecourse.tools.DataBaseLinker;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private TableLayout listeCourse;
-    private Button btn;
+    private Button btnAddProduit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.test);
-        deleteDatabase("listeCourse.db");
-        btn = findViewById(R.id.btn);
-        Produit prod = getProduit(1);
-        btn.setText(prod.getLibelle());
+        setContentView(R.layout.activity_main);
+        //deleteDatabase("listeCourse.db");
 
-        /*ajouterProduit = findViewById(R.id.ajouterProduit) ;
-        ajouterProduit.setOnClickListener(new View.OnClickListener() {
+        btnAddProduit = findViewById(R.id.btnAddProduit) ;
+        btnAddProduit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent ajouterProduitIntent = new Intent(MainActivity.this, Test.class);
+                Intent ajouterProduitIntent = new Intent(MainActivity.this, Produits.class);
                 startActivity(ajouterProduitIntent);
             }
         });
-         */
+
     }
 
-    public Produit getProduit(int id){
+    public Produit getProduitById(int id){
         Produit prod = null;
         DataBaseLinker linker = new DataBaseLinker(this);
 
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         return prod;
     }
 
-    public ArrayList<Produit> getAllProduit(){
+    public ArrayList<Produit> getAllProduits(){
         ArrayList<Produit> listeProduit = null;
         DataBaseLinker linker = new DataBaseLinker(this);
 
@@ -69,5 +71,34 @@ public class MainActivity extends AppCompatActivity {
         return listeProduit;
     }
 
+    public ArrayList<Produit> getProduitsByListeId(int idListe){
 
+        ArrayList<Produit_ListeCourse> listeProduitListe = null;
+        ArrayList<Produit> listeProduit = new ArrayList<>();
+
+        DataBaseLinker linker = new DataBaseLinker(this);
+        try {
+            Dao<Produit_ListeCourse, Integer> daoProduit = linker.getDao( Produit_ListeCourse.class );
+
+            QueryBuilder<Produit_ListeCourse, Integer> queryBuilder = daoProduit.queryBuilder();
+            queryBuilder.where().eq("idListeCourse",idListe);
+
+            PreparedQuery<Produit_ListeCourse> preparedQuery = queryBuilder.prepare();
+
+            listeProduitListe = (ArrayList<Produit_ListeCourse>) daoProduit.query(preparedQuery);
+
+        }
+        catch (SQLException | java.sql.SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        linker.close();
+
+        for (Produit_ListeCourse prod : listeProduitListe){
+            listeProduit.add(prod.getProduit());
+        }
+        return listeProduit;
+    }
+
+    //public void createProduit
 }

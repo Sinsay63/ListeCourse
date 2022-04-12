@@ -12,19 +12,9 @@ public class Produit {
     @DatabaseField( columnName="libelle")
     private String libelle;
 
-    @DatabaseField (
-            columnName = "libelleUnite",
-            foreign = true,
-            foreignAutoRefresh = true,
-            canBeNull = false,
-            index = true,
-            columnDefinition = "VARCHAR CONSTRAINT FK_Produit_Unite REFERENCES parent(libelle) ON DELETE CASCADE"
-    )
-    private Unite unite;
 
-    public Produit(String libelle, Unite unite) {
+    public Produit(String libelle) {
         this.libelle = libelle;
-        this.unite = unite;
     }
 
     public Produit(){
@@ -47,11 +37,4 @@ public class Produit {
         this.libelle = libelle;
     }
 
-    public Unite getUnite() {
-        return unite;
-    }
-
-    public void setUnite(Unite unite) {
-        this.unite = unite;
-    }
 }
