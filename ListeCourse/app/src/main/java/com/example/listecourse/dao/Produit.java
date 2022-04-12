@@ -13,11 +13,12 @@ public class Produit {
     private String libelle;
 
     @DatabaseField (
+            columnName = "libelleUnite",
             foreign = true,
             foreignAutoRefresh = true,
             canBeNull = false,
             index = true,
-            columnDefinition = "INTEGER CONSTRAINT FK_Produit_Unite REFERENCES parent(idUnite) ON DELETE CASCADE"
+            columnDefinition = "VARCHAR CONSTRAINT FK_Produit_Unite REFERENCES parent(libelle) ON DELETE CASCADE"
     )
     private Unite unite;
 

@@ -7,6 +7,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Produit_ListeCourse {
 
     @DatabaseField (
+            columnName = "idProduit",
             foreign = true,
             foreignAutoRefresh = true,
             canBeNull = false,
@@ -16,6 +17,7 @@ public class Produit_ListeCourse {
     private Produit produit;
 
     @DatabaseField (
+            columnName = "idListeCourse",
             foreign = true,
             foreignAutoRefresh = true,
             canBeNull = false,
@@ -24,12 +26,23 @@ public class Produit_ListeCourse {
     )
     private ListeCourse listeCourse;
 
+    @DatabaseField (
+            columnName = "idTaille",
+            foreign = true,
+            foreignAutoRefresh = true,
+            canBeNull = true,
+            index = true,
+            columnDefinition = "INTEGER CONSTRAINT FK_Produit_Recette_Taille REFERENCES parent(idTaille) ON DELETE CASCADE"
+    )
+    private Taille taille;
+
     @DatabaseField(columnName = "quantite")
     private int quantite;
 
-    public Produit_ListeCourse(Produit produit, ListeCourse listeCourse, int quantite) {
+    public Produit_ListeCourse(Produit produit, ListeCourse listeCourse, Taille taille, int quantite) {
         this.produit = produit;
         this.listeCourse = listeCourse;
+        this.taille = taille;
         this.quantite = quantite;
     }
 
@@ -51,6 +64,14 @@ public class Produit_ListeCourse {
 
     public void setListeCourse(ListeCourse listeCourse) {
         this.listeCourse = listeCourse;
+    }
+
+    public Taille getTaille() {
+        return taille;
+    }
+
+    public void setTaille(Taille taille) {
+        this.taille = taille;
     }
 
     public int getQuantite() {

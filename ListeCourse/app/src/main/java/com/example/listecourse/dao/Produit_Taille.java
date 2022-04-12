@@ -7,6 +7,7 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Produit_Taille {
 
     @DatabaseField (
+            columnName = "idProduit",
             foreign = true,
             foreignAutoRefresh = true,
             canBeNull = false,
@@ -16,6 +17,7 @@ public class Produit_Taille {
     private Produit produit;
 
     @DatabaseField (
+            columnName = "idTaille",
             foreign = true,
             foreignAutoRefresh = true,
             canBeNull = false,

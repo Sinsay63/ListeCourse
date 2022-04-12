@@ -4,6 +4,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 
+import com.example.listecourse.dao.ListeCourse;
+import com.example.listecourse.dao.Produit;
+import com.example.listecourse.dao.Produit_ListeCourse;
+import com.example.listecourse.dao.Produit_Recette;
+import com.example.listecourse.dao.Produit_Taille;
+import com.example.listecourse.dao.Recette;
+import com.example.listecourse.dao.Taille;
+import com.example.listecourse.dao.Unite;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
@@ -21,8 +29,22 @@ public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
-            //TableUtils.createTable( connectionSource, Client.class );
-            //TableUtils.createTable( connectionSource, Ville.class );
+            TableUtils.createTable( connectionSource, Produit.class );
+            TableUtils.createTable( connectionSource, Taille.class );
+            TableUtils.createTable( connectionSource, Unite.class );
+            TableUtils.createTable( connectionSource, Recette.class );
+            TableUtils.createTable( connectionSource, ListeCourse.class );
+            TableUtils.createTable( connectionSource, Produit_Taille.class );
+            TableUtils.createTable( connectionSource, Produit_Recette.class );
+            TableUtils.createTable( connectionSource, Produit_ListeCourse.class );
+
+            Dao<Produit, Integer> daoProduit = this.getDao(Produit.class);
+            Dao<Unite, Integer> daoUnite = this.getDao(Unite.class);
+            Unite kg = new Unite();
+            kg.setLibelle("kg");
+            daoUnite.create(kg);
+            daoProduit.create(new Produit("Chocolat",kg));
+
             //Dao<Client, Integer> daoClient = this.getDao( Client.class );
             //daoClient.create(client1);
 
