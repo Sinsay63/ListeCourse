@@ -28,8 +28,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //deleteDatabase("listeCourse.db");
+        deleteDatabase("listeCourse.db");
 
+
+        getAllProduits();
         btnAddProduit = findViewById(R.id.btnAddProduit) ;
         btnAddProduit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             throwables.printStackTrace();
         }
         linker.close();
+        Log.e("testsdt", ""+listeProduit);
         return listeProduit;
     }
 

@@ -28,9 +28,9 @@ public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
+
             TableUtils.createTable( connectionSource, Produit.class );
             TableUtils.createTable( connectionSource, Taille.class );
-
             TableUtils.createTable( connectionSource, Recette.class );
             TableUtils.createTable( connectionSource, ListeCourse.class );
             TableUtils.createTable( connectionSource, Produit_Taille.class );
@@ -38,7 +38,6 @@ public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable( connectionSource, Produit_ListeCourse.class );
 
             Dao<Produit, Integer> daoProduit = this.getDao(Produit.class);
-
             Dao<ListeCourse, Integer> daoListe = this.getDao(ListeCourse.class);
             Dao<Produit_ListeCourse, Integer> daoProduitListe = this.getDao(Produit_ListeCourse.class);
             Dao<Taille, Integer> daoTaille = this.getDao(Taille.class);

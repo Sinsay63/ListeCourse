@@ -12,7 +12,7 @@ public class Produit_Taille {
             foreignAutoRefresh = true,
             canBeNull = false,
             index = true,
-            columnDefinition = "INTEGER CONSTRAINT FK_Produit_Taille_Produit REFERENCES parent(idProduit) ON DELETE CASCADE"
+            columnDefinition = "INTEGER CONSTRAINT FK_Produit_Taille_Produit REFERENCES Produit(idProduit) ON DELETE CASCADE"
     )
     private Produit produit;
 
@@ -22,7 +22,7 @@ public class Produit_Taille {
             foreignAutoRefresh = true,
             canBeNull = false,
             index = true,
-            columnDefinition = "INTEGER CONSTRAINT FK_Produit_Taille_Taille REFERENCES parent(idTaille) ON DELETE CASCADE"
+            columnDefinition = "INTEGER CONSTRAINT FK_Produit_Taille_Taille REFERENCES Taille(idTaille) ON DELETE CASCADE"
     )
     private Taille taille;
 

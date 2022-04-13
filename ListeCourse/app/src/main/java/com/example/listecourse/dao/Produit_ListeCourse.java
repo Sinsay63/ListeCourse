@@ -12,7 +12,7 @@ public class Produit_ListeCourse {
             foreignAutoRefresh = true,
             canBeNull = false,
             index = true,
-            columnDefinition = "INTEGER CONSTRAINT FK_Produit_ListeCourse_Produit REFERENCES parent(idProduit) ON DELETE CASCADE"
+            columnDefinition = "INTEGER CONSTRAINT FK_Produit_ListeCourse_Produit REFERENCES Produit(idProduit) ON DELETE CASCADE"
     )
     private Produit produit;
 
@@ -22,7 +22,7 @@ public class Produit_ListeCourse {
             foreignAutoRefresh = true,
             canBeNull = false,
             index = true,
-            columnDefinition = "INTEGER CONSTRAINT FK_Produit_ListeCourse_ListeCourse REFERENCES parent(idListeCourse) ON DELETE CASCADE"
+            columnDefinition = "INTEGER CONSTRAINT FK_Produit_ListeCourse_ListeCourse REFERENCES ListeCourse(idListeCourse) ON DELETE CASCADE"
     )
     private ListeCourse listeCourse;
 
@@ -32,7 +32,7 @@ public class Produit_ListeCourse {
             foreignAutoRefresh = true,
             canBeNull = true,
             index = true,
-            columnDefinition = "INTEGER CONSTRAINT FK_Produit_Recette_Taille REFERENCES parent(idTaille) ON DELETE CASCADE"
+            columnDefinition = "INTEGER CONSTRAINT FK_Produit_Recette_Taille REFERENCES Taille(idTaille) ON DELETE CASCADE"
     )
     private Taille taille;
 
