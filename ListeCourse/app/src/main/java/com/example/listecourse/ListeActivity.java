@@ -1,7 +1,11 @@
 package com.example.listecourse;
 
+import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -11,6 +15,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.listecourse.dao.ListeCourse;
 import com.example.listecourse.dao.Produit;
@@ -27,6 +32,7 @@ import java.util.List;
 public class ListeActivity extends AppCompatActivity {
 
     private TableLayout tableListe;
+    private Button btnCreateListe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +60,6 @@ public class ListeActivity extends AppCompatActivity {
     }
 
     public void displayListes(){
-        tableListe.removeAllViews();
         ArrayList<ListeCourse> listeCourses = getAllListes();
         if(listeCourses != null) {
             for (ListeCourse liste : listeCourses) {
@@ -71,6 +76,15 @@ public class ListeActivity extends AppCompatActivity {
                 TextView textLibelle = new TextView(this);
                 textLibelle.setText(liste.getLibelle());
 
+                textLibelle.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent infoListe = new Intent(ListeActivity.this, InfoListeActivity.class);
+                        infoListe.putExtra("liste",liste.getIdListeCourse());
+
+                        startActivity(infoListe);
+                    }
+                });
                 rowListe.addView(textLibelle);
 
                 tableListe.addView(rowListe);

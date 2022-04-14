@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.TableLayout;
 
 import com.example.listecourse.dao.ListeCourse;
+import com.example.listecourse.dao.Produit;
 import com.example.listecourse.dao.Produit_ListeCourse;
 import com.example.listecourse.tools.DataBaseLinker;
 import com.j256.ormlite.dao.Dao;
@@ -35,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent ProduitIntent = new Intent(MainActivity.this, ProduitActivity.class);
-                //ProduitIntent.putExtra("data", 15);
                 startActivity(ProduitIntent);
             }
         });
@@ -49,36 +49,4 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-
-    public ArrayList<com.example.listecourse.dao.Produit> getProduitsByListeId(int idListe){
-
-        ArrayList<Produit_ListeCourse> listeProduitListe = null;
-        ArrayList<com.example.listecourse.dao.Produit> listeProduit = new ArrayList<>();
-
-        DataBaseLinker linker = new DataBaseLinker(this);
-        try {
-            Dao<Produit_ListeCourse, Integer> daoProduit = linker.getDao( Produit_ListeCourse.class );
-
-            QueryBuilder<Produit_ListeCourse, Integer> queryBuilder = daoProduit.queryBuilder();
-            queryBuilder.where().eq("idListeCourse",idListe);
-
-            PreparedQuery<Produit_ListeCourse> preparedQuery = queryBuilder.prepare();
-
-            listeProduitListe = (ArrayList<Produit_ListeCourse>) daoProduit.query(preparedQuery);
-
-        }
-        catch (SQLException | java.sql.SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-        linker.close();
-
-        for (Produit_ListeCourse prod : listeProduitListe){
-            listeProduit.add(prod.getProduit());
-        }
-
-        return listeProduit;
-    }
-
 }

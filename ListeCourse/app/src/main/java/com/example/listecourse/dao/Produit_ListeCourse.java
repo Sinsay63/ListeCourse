@@ -30,7 +30,7 @@ public class Produit_ListeCourse {
             columnName = "idTaille",
             foreign = true,
             foreignAutoRefresh = true,
-            canBeNull = true,
+            canBeNull = false,
             index = true,
             columnDefinition = "INTEGER CONSTRAINT FK_Produit_Recette_Taille REFERENCES Taille(idTaille) ON DELETE CASCADE"
     )
@@ -39,11 +39,15 @@ public class Produit_ListeCourse {
     @DatabaseField(columnName = "quantite")
     private int quantite;
 
-    public Produit_ListeCourse(Produit produit, ListeCourse listeCourse, Taille taille, int quantite) {
+    @DatabaseField(columnName = "isCart")
+    private boolean isCart;
+
+    public Produit_ListeCourse(Produit produit, ListeCourse listeCourse, Taille taille, int quantite, boolean isCart) {
         this.produit = produit;
         this.listeCourse = listeCourse;
         this.taille = taille;
         this.quantite = quantite;
+        this.isCart = isCart;
     }
 
     public Produit_ListeCourse(){
@@ -80,5 +84,19 @@ public class Produit_ListeCourse {
 
     public void setQuantite(int quantite) {
         this.quantite = quantite;
+    }
+
+    public boolean isCart() {
+        return isCart;
+    }
+
+    public void setIsCart(boolean cart) {
+        isCart = cart;
+    }
+
+    @Override
+    public String toString(){
+        return this.listeCourse+" - "+this.produit.getLibelle()+" - "+this.taille+" - "
+        + this.getQuantite() +" - "+this.isCart;
     }
 }

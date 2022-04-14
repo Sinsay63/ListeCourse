@@ -14,6 +14,9 @@ public class Produit {
 
     private Taille taille;
 
+    private int quantite;
+
+    private boolean idCart;
 
     public Produit(String libelle) {
         this.libelle = libelle;
@@ -45,5 +48,21 @@ public class Produit {
 
     public void setTaille(Taille taille) {
         this.taille = taille;
+    }
+
+    public int getQuantite() {
+        return quantite;
+    }
+
+    public void setQuantite(int quantite) {
+        this.quantite = quantite;
+    }
+
+    public boolean isIdCart() {
+        return idCart;
+    }
+
+    public void setIdCart(boolean idCart) {
+        this.idCart = idCart;
     }
 }
