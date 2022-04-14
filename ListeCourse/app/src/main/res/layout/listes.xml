@@ -7,20 +7,21 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/btnAddProduit"
+        android:id="@+id/btnAddListe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ajouter produit"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:text="Créer une liste"
+        app:layout_constraintStart_toStartOf="parent"
+        />
 
 
     <TableLayout
-        android:id="@+id/tableProduit"
+        android:id="@+id/tableListe"
 
         android:layout_width="0dp"
         android:layout_height="0dp"
 
-        app:layout_constraintTop_toBottomOf="@+id/btnAddProduit"
+        app:layout_constraintTop_toBottomOf="@+id/btnAddListe"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintDimensionRatio="1:1">

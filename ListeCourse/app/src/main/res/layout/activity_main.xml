@@ -19,10 +19,16 @@
         app:layout_constraintDimensionRatio="1:1"
         >
         <Button
-            android:id="@+id/btnAddProduit"
+            android:id="@+id/btnProduit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Voir les produits"
+            app:layout_constraintStart_toStartOf="parent" />
+        <Button
+            android:id="@+id/btnListe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Voir mes listes"
             app:layout_constraintStart_toStartOf="parent" />
     </TableLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

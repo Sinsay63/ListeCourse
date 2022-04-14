@@ -12,6 +12,8 @@ public class Produit {
     @DatabaseField( columnName="libelle")
     private String libelle;
 
+    private Taille taille;
+
 
     public Produit(String libelle) {
         this.libelle = libelle;
@@ -37,4 +39,11 @@ public class Produit {
         this.libelle = libelle;
     }
 
+    public Taille getTaille() {
+        return taille;
+    }
+
+    public void setTaille(Taille taille) {
+        this.taille = taille;
+    }
 }
