@@ -6,6 +6,10 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "Produit_ListeCourse")
 public class Produit_ListeCourse {
 
+
+    @DatabaseField(columnName = "idProduitListe",generatedId = true)
+    private int idProduitListe;
+
     @DatabaseField (
             columnName = "idProduit",
             foreign = true,
@@ -52,6 +56,14 @@ public class Produit_ListeCourse {
 
     public Produit_ListeCourse(){
 
+    }
+
+    public int getIdProduitListe() {
+        return idProduitListe;
+    }
+
+    public void setIdProduitListe(int idProduitListe) {
+        this.idProduitListe = idProduitListe;
     }
 
     public Produit getProduit() {

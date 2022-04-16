@@ -4,18 +4,22 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.Context;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -29,10 +33,13 @@ import com.example.listecourse.dao.Taille;
 import com.example.listecourse.tools.DataBaseLinker;
 import com.google.android.material.snackbar.Snackbar;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedDelete;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
+import com.j256.ormlite.stmt.query.In;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +63,7 @@ public class ProduitActivity extends AppCompatActivity {
         btnAddProduit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                popUpCreateProduit();
             }
         });
     }
@@ -77,30 +84,15 @@ public class ProduitActivity extends AppCompatActivity {
         return listeProduit;
     }
 
-    public Produit getProduitById(int id){
-        Produit prod = null;
-        DataBaseLinker linker = new DataBaseLinker(this);
-
-        try {
-            Dao<Produit, Integer> daoProduit = linker.getDao( Produit.class );
-            prod = daoProduit.queryForId(id);
-
-        } catch (SQLException | java.sql.SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        linker.close();
-
-        return prod;
-    }
-
-    public void createProduit(){
+    public Produit createProduit(Produit produit){
         DataBaseLinker linker = new DataBaseLinker(this);
 
         try {
             Dao<Produit, Integer> daoProduit = linker.getDao(Produit.class );
-            String libelle;
 
-            daoProduit.create(new Produit());
+            daoProduit.create(produit);
+            int id = daoProduit.extractId(produit);
+            produit.setIdProduit(id);
 
         }
         catch (SQLException | java.sql.SQLException throwables) {
@@ -108,6 +100,7 @@ public class ProduitActivity extends AppCompatActivity {
         }
 
         linker.close();
+        return produit;
     }
 
     public List<Taille> getTailleProduit(Produit produit){
@@ -159,6 +152,15 @@ public class ProduitActivity extends AppCompatActivity {
 
             Dao<Produit, Integer> daoProduit = linker.getDao(Produit.class );
             daoProduit.delete(produit);
+
+            Dao<Produit_ListeCourse, Integer> daoProduitL = linker.getDao(Produit_ListeCourse.class);
+
+            DeleteBuilder<Produit_ListeCourse, Integer> deleteBuilder = daoProduitL.deleteBuilder();
+            deleteBuilder.where().eq("idProduit",produit.getIdProduit());
+
+            PreparedDelete<Produit_ListeCourse> preparedDelete = deleteBuilder.prepare();
+
+            daoProduitL.delete(preparedDelete);
         }
         catch (SQLException | java.sql.SQLException throwables) {
             throwables.printStackTrace();
@@ -168,7 +170,6 @@ public class ProduitActivity extends AppCompatActivity {
 
     public void displayProduit(){
         tableProduit.removeAllViews();
-
         for(Produit prod : getAllProduits()){
 
             TableRow.LayoutParams param = new TableRow.LayoutParams(
@@ -225,14 +226,14 @@ public class ProduitActivity extends AppCompatActivity {
             editProduit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    editProduit(prod);
+                    popUpEditProduit(prod);
                 }
             });
             addProduit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Taille taille = (Taille) tailleSpiner.getSelectedItem();
-                    addProduitList(prod,taille);
+                    popUpProduitInListe(prod,taille);
                 }
             });
 
@@ -247,7 +248,7 @@ public class ProduitActivity extends AppCompatActivity {
         }
     }
 
-    public void editProduit(Produit prod){
+    public void popUpEditProduit(Produit prod){
         AlertDialog.Builder popUpEdit = new AlertDialog.Builder(ProduitActivity.this);
 
         popUpEdit.setTitle("Edition du produit "+prod.getLibelle());
@@ -257,9 +258,6 @@ public class ProduitActivity extends AppCompatActivity {
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         linearLayout.setGravity(LinearLayout.TEXT_ALIGNMENT_CENTER);
 
-        TextView textLibelle = new TextView(ProduitActivity.this);
-        textLibelle.setText("Libelle: ");
-        textLibelle.setGravity(TextView.TEXT_ALIGNMENT_CENTER);
 
         EditText editLibelle = new EditText(ProduitActivity.this);
         editLibelle.setText(prod.getLibelle());
@@ -267,22 +265,127 @@ public class ProduitActivity extends AppCompatActivity {
         Button btnUpdate = new Button(ProduitActivity.this);
         btnUpdate.setText("Mettre à jour");
 
-        Spinner tailleSpiner = new Spinner(this);
         List<Taille> listeTailleProduit = getTailleProduit(prod);
-        List<Taille> listeTaille = getAllTaille();
 
-        ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,listeTaille);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        tailleSpiner.setAdapter(adapter);
 
-        linearLayout.addView(textLibelle);
+        ScrollView scrollTaille = new ScrollView(this);
+
+
+        LinearLayout linearLayoutScroll = new LinearLayout(this);
+        linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
+        ArrayList<CheckBox> listeCheckBox = new ArrayList<>();
+
+        for(Taille taille : getAllTaille()){
+            CheckBox cbTaille = new CheckBox(this);
+            cbTaille.setText(taille.getLibelle());
+            for(Taille tailleProduit : listeTailleProduit){
+                if(taille.getLibelle().equals(tailleProduit.getLibelle())){
+                    cbTaille.setChecked(true);
+                }
+            }
+            linearLayoutScroll.addView(cbTaille);
+            listeCheckBox.add(cbTaille);
+        }
+
+        scrollTaille.addView(linearLayoutScroll);
         linearLayout.addView(editLibelle);
+        linearLayout.addView(scrollTaille);
         linearLayout.addView(btnUpdate);
-        linearLayout.addView(tailleSpiner);
 
         popUpEdit.setView(linearLayout);
         final AlertDialog alertDialog = popUpEdit.create();
         alertDialog.show();
+
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int nbChecked=0;
+                prod.setLibelle(editLibelle.getText().toString());
+                for(CheckBox checkBox: listeCheckBox){
+                    if(checkBox.isChecked()){
+                        nbChecked++;
+                    }
+                }
+                if(nbChecked>0){
+                    editProduit(prod,listeCheckBox);
+                    displayProduit();
+                    alertDialog.cancel();
+                }
+                else{
+                    InputMethodManager imm = (InputMethodManager) ProduitActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    Snackbar.make(page, "Aucune taille n'a été sélectionnée ! ", Snackbar.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+    }
+
+    public void popUpCreateProduit(){
+
+        AlertDialog.Builder popUpCreate = new AlertDialog.Builder(ProduitActivity.this);
+
+        popUpCreate.setTitle("Creation d'un produit");
+        popUpCreate.setCancelable(true);
+
+        LinearLayout linearLayout = new LinearLayout(ProduitActivity.this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+        EditText editLibelle = new EditText(ProduitActivity.this);
+        editLibelle.setHint("Saisir un libelle");
+
+        ScrollView scrollTaille = new ScrollView(this);
+        LinearLayout linearLayoutScroll = new LinearLayout(this);
+        linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
+
+        ArrayList<CheckBox> listeCheckBox = new ArrayList<>();
+
+        for(Taille taille : getAllTaille()){
+            CheckBox cbTaille = new CheckBox(this);
+            cbTaille.setText(taille.getLibelle());
+            linearLayoutScroll.addView(cbTaille);
+            listeCheckBox.add(cbTaille);
+        }
+
+        scrollTaille.addView(linearLayoutScroll);
+
+        Button btnCreate = new Button(ProduitActivity.this);
+        btnCreate.setText("Créer le produit");
+
+        linearLayout.addView(editLibelle);
+        linearLayout.addView(scrollTaille);
+        linearLayout.addView(btnCreate);
+
+        popUpCreate.setView(linearLayout);
+        final AlertDialog alertDialog = popUpCreate.create();
+        alertDialog.show();
+
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String libelle = editLibelle.getText().toString();
+                if(!libelle.equals("")) {
+                    Produit produit = new Produit(libelle);
+                    int nbChecked = 0;
+                    for (CheckBox checkBox : listeCheckBox) {
+                        if (checkBox.isChecked()) {
+                            nbChecked++;
+                        }
+                    }
+                    if (nbChecked > 0) {
+                        produit = createProduit(produit);
+                        createProduitTaille(produit,listeCheckBox);
+                        displayProduit();
+                        alertDialog.cancel();
+                    }
+                    else {
+                        InputMethodManager imm = (InputMethodManager) ProduitActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        Snackbar.make(page, "Aucune taille n'a été sélectionnée ! ", Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
     }
 
     public List<ListeCourse> getAllListes(){
@@ -302,7 +405,7 @@ public class ProduitActivity extends AppCompatActivity {
         return listeListeCourses;
     }
 
-    public void addProduitList(Produit prod,Taille taille){
+    public void popUpProduitInListe(Produit prod,Taille taille){
         AlertDialog.Builder popUpEdit = new AlertDialog.Builder(ProduitActivity.this);
 
         popUpEdit.setTitle("Ajout de "+prod.getLibelle() + " à une liste.");
@@ -312,11 +415,10 @@ public class ProduitActivity extends AppCompatActivity {
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         linearLayout.setGravity(LinearLayout.TEXT_ALIGNMENT_CENTER);
 
-        TextView libelleQuantite = new TextView(ProduitActivity.this);
-        libelleQuantite.setText("Saisir une quantité : ");
 
         EditText textQuantite = new EditText(ProduitActivity.this);
         textQuantite.setInputType(InputType.TYPE_CLASS_NUMBER);
+        textQuantite.setHint("Saisir une quantité ");
 
         Spinner listeSpinner = new Spinner(this);
         List<ListeCourse> listeListeCourse = getAllListes();
@@ -327,7 +429,6 @@ public class ProduitActivity extends AppCompatActivity {
         Button btnUpdate = new Button(ProduitActivity.this);
         btnUpdate.setText("Ajouter à la liste");
 
-        linearLayout.addView(libelleQuantite);
         linearLayout.addView(textQuantite);
         linearLayout.addView(listeSpinner);
         linearLayout.addView(btnUpdate);
@@ -405,5 +506,72 @@ public class ProduitActivity extends AppCompatActivity {
 
         linker.close();
         return in;
+    }
+
+    public Taille getTailleByLibelle(String libelle){
+        DataBaseLinker linker = new DataBaseLinker(this);
+        List<Taille> taille = null;
+        try {
+            Dao<Taille, Integer> daoTaille = linker.getDao(Taille.class );
+            QueryBuilder<Taille,Integer> queryBuilder = daoTaille.queryBuilder();
+            queryBuilder.where().eq("libelle",libelle);
+            PreparedQuery<Taille> preparedQuery = queryBuilder.prepare();
+            taille = daoTaille.query(preparedQuery);
+
+        }
+        catch (SQLException | java.sql.SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        linker.close();
+        return taille.get(0);
+    }
+
+    public void editProduit(Produit produit,ArrayList<CheckBox> listeCheckbox){
+        DataBaseLinker linker = new DataBaseLinker(this);
+        try {
+            Dao<Produit, Integer> daoProduit = linker.getDao( Produit.class );
+            daoProduit.update(produit);
+
+            Dao<Produit_Taille, Integer> daoProduitTaille = linker.getDao( Produit_Taille.class );
+
+            DeleteBuilder<Produit_Taille, Integer> deleteBuilder = daoProduitTaille.deleteBuilder();
+            deleteBuilder.where().eq("idProduit",produit.getIdProduit());
+
+            PreparedDelete<Produit_Taille> preparedDelete = deleteBuilder.prepare();
+            daoProduitTaille.delete(preparedDelete);
+
+            for(CheckBox cb : listeCheckbox){
+                Taille taille = getTailleByLibelle(cb.getText().toString());
+                if(cb.isChecked()){
+                    Produit_Taille pt = new Produit_Taille(produit,taille);
+                    daoProduitTaille.create(pt);
+                }
+            }
+        }
+        catch (SQLException | java.sql.SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        linker.close();
+    }
+
+    public void createProduitTaille(Produit produit, ArrayList<CheckBox> listeCheckbox){
+        DataBaseLinker linker = new DataBaseLinker(this);
+        try {
+            Dao<Produit_Taille, Integer> daoProduitTaille = linker.getDao( Produit_Taille.class );
+
+            for(CheckBox cb : listeCheckbox){
+                if(cb.isChecked()){
+                    Taille taille = getTailleByLibelle(cb.getText().toString());
+                    Produit_Taille pt = new Produit_Taille(produit,taille);
+                    daoProduitTaille.create(pt);
+                }
+            }
+        }
+        catch (SQLException | java.sql.SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        linker.close();
     }
 }

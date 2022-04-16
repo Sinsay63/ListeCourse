@@ -71,9 +71,10 @@ public class InfoListeActivity extends AppCompatActivity {
         }
 
         linker.close();
-
         for (Produit_ListeCourse prod : listeProduitListe){
+
             Produit produit = prod.getProduit();
+
             produit.setQuantite(prod.getQuantite());
             produit.setTaille(prod.getTaille());
 

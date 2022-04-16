@@ -3,6 +3,8 @@ package com.example.listecourse.dao;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.ArrayList;
+
 @DatabaseTable(tableName = "Produit")
 public class Produit {
 
@@ -13,6 +15,8 @@ public class Produit {
     private String libelle;
 
     private Taille taille;
+
+    private ArrayList<Taille> ListeTailleDispo;
 
     private int quantite;
 
@@ -48,6 +52,14 @@ public class Produit {
 
     public void setTaille(Taille taille) {
         this.taille = taille;
+    }
+
+    public ArrayList<Taille> getListeTailleDispo() {
+        return ListeTailleDispo;
+    }
+
+    public void setListeTailleDispo(ArrayList<Taille> listeTailleDispo) {
+        ListeTailleDispo = listeTailleDispo;
     }
 
     public int getQuantite() {
