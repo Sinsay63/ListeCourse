@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -64,9 +66,9 @@ public class ProduitActivity extends AppCompatActivity {
         });
     }
 
-    public ArrayList<Produit> getAllProduits(){
+    public static ArrayList<Produit> getAllProduits(Context context){
         ArrayList<Produit> listeProduit = null;
-        DataBaseLinker linker = new DataBaseLinker(this);
+        DataBaseLinker linker = new DataBaseLinker(context);
 
         try {
             Dao<Produit, Integer> daoProduit = linker.getDao(Produit.class );
@@ -99,8 +101,8 @@ public class ProduitActivity extends AppCompatActivity {
         return produit;
     }
 
-    public List<Taille> getTailleProduit(Produit produit){
-        DataBaseLinker linker = new DataBaseLinker(this);
+    public static List<Taille> getTailleProduit(Produit produit,Context context){
+        DataBaseLinker linker = new DataBaseLinker(context);
         ArrayList<Taille> listeTaille = new ArrayList<>();
         try {
             int idProduit = produit.getIdProduit();
@@ -169,7 +171,7 @@ public class ProduitActivity extends AppCompatActivity {
         LinearLayout linearLayoutScroll = new LinearLayout(this);
         linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
 
-        for(Produit prod : getAllProduits()){
+        for(Produit prod : getAllProduits(this)){
             LinearLayout linearLayoutContenu = new LinearLayout(this);
             linearLayoutContenu.setGravity(Gravity.CENTER_VERTICAL);
 
@@ -187,46 +189,47 @@ public class ProduitActivity extends AppCompatActivity {
             textLibelle.setLayoutParams(param);
             textLibelle.setText(prod.getLibelle());
 
-            List<Taille> listeTaille = getTailleProduit(prod);
+            List<Taille> listeTaille = getTailleProduit(prod,this);
 
             ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item,listeTaille);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             tailleSpiner.setAdapter(adapter);
 
+                ImageButton addProduit = new ImageButton(this);
+                addProduit.setBackground(null);
+                addProduit.setImageResource(R.drawable.add);
 
-            ImageButton addProduit = new ImageButton(this);
-            addProduit.setBackground(null);
-            addProduit.setImageResource(R.drawable.add);
+                ImageButton editProduit = new ImageButton(this);
+                editProduit.setBackground(null);
+                editProduit.setImageResource(R.drawable.edit);
 
-            ImageButton editProduit = new ImageButton(this);
-            editProduit.setBackground(null);
-            editProduit.setImageResource(R.drawable.edit);
+                ImageButton deleteProduit = new ImageButton(this);
+                deleteProduit.setBackground(null);
+                deleteProduit.setImageResource(R.drawable.delete);
 
-            ImageButton deleteProduit = new ImageButton(this);
-            deleteProduit.setBackground(null);
-            deleteProduit.setImageResource(R.drawable.delete);
+                deleteProduit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        deleteProduit(prod);
+                        linearLayoutScroll.removeView(linearLayoutContenu);
+                        Snackbar.make(page, "Le produit " + prod.getLibelle() + " a bien été supprimé !", Snackbar.LENGTH_LONG).show();
+                    }
+                });
+                editProduit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        popUpEditProduit(prod);
+                    }
+                });
+                addProduit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Taille taille = (Taille) tailleSpiner.getSelectedItem();
+                        popUpProduitInListe(prod, taille);
+                    }
+                });
 
-            deleteProduit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    deleteProduit(prod);
-                    linearLayoutScroll.removeView(linearLayoutContenu);
-                    Snackbar.make(page, "Le produit "+prod.getLibelle()+" a bien été supprimé !", Snackbar.LENGTH_LONG).show();
-                }
-            });
-            editProduit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    popUpEditProduit(prod);
-                }
-            });
-            addProduit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Taille taille = (Taille) tailleSpiner.getSelectedItem();
-                    popUpProduitInListe(prod,taille);
-                }
-            });
+
 
             LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -250,6 +253,7 @@ public class ProduitActivity extends AppCompatActivity {
             linearLayoutContenu.addView(editProduit);
             linearLayoutContenu.addView(deleteProduit);
 
+
             linearLayoutScroll.addView(linearLayoutContenu);
         }
         scrollProduit.addView(linearLayoutScroll);
@@ -271,7 +275,7 @@ public class ProduitActivity extends AppCompatActivity {
         Button btnUpdate = new Button(ProduitActivity.this);
         btnUpdate.setText("Mettre à jour");
 
-        List<Taille> listeTailleProduit = getTailleProduit(prod);
+        List<Taille> listeTailleProduit = getTailleProduit(prod,this);
 
         ScrollView scrollTaille = new ScrollView(this);
 

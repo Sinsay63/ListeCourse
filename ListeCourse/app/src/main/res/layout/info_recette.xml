@@ -7,17 +7,47 @@
     tools:context=".ListeActivity"
     android:id="@+id/page">
 
-
-    <TableLayout
-        android:id="@+id/tableInfoRecette"
-
+    <ScrollView
+        android:id="@+id/scrollProduitsRecette"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="300dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintDimensionRatio="1:1"
-        tools:ignore="MissingConstraints">
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints,SpeakableTextPresentCheck"
+        tools:layout_editor_absoluteY="16dp">
 
-    </TableLayout>
+    </ScrollView>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="409dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="8dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toTopOf="@+id/scrollProduits"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollProduitsRecette"
+        tools:ignore="MissingConstraints" />
+
+    <ScrollView
+        android:id="@+id/scrollProduits"
+        android:layout_width="0dp"
+        android:layout_height="380dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollProduitsRecette"
+        tools:ignore="MissingConstraints,SpeakableTextPresentCheck">
+
+    </ScrollView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

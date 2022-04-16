@@ -46,6 +46,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".RecetteActivity" />
         </activity>
+        <activity android:name=".InfoRecetteActivity"
+            android:parentActivityName=".RecetteActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".InfoRecetteActivity" />
+        </activity>
     </application>
 
 </manifest>
