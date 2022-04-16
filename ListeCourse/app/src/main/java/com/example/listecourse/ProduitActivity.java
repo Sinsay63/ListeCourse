@@ -8,7 +8,6 @@ import android.content.Context;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -17,11 +16,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -39,7 +36,6 @@ import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
-import com.j256.ormlite.stmt.query.In;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +44,7 @@ public class ProduitActivity extends AppCompatActivity {
 
     private ConstraintLayout page;
     private Button btnAddProduit;
-    private TableLayout tableProduit;
+    private ScrollView scrollProduit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +52,7 @@ public class ProduitActivity extends AppCompatActivity {
         setContentView(R.layout.produits);
 
         btnAddProduit = findViewById(R.id.btnAddProduit);
-        tableProduit = findViewById(R.id.tableProduit);
+        scrollProduit = findViewById(R.id.scrollProduits);
         page= findViewById(R.id.page);
         displayProduit();
 
@@ -169,23 +165,26 @@ public class ProduitActivity extends AppCompatActivity {
     }
 
     public void displayProduit(){
-        tableProduit.removeAllViews();
+        scrollProduit.removeAllViews();
+        LinearLayout linearLayoutScroll = new LinearLayout(this);
+        linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
+
         for(Produit prod : getAllProduits()){
+            LinearLayout linearLayoutContenu = new LinearLayout(this);
+            linearLayoutContenu.setGravity(Gravity.CENTER_VERTICAL);
 
-            TableRow.LayoutParams param = new TableRow.LayoutParams(
-                    TableRow.LayoutParams.MATCH_PARENT,
-                    TableRow.LayoutParams.WRAP_CONTENT,
-                    4f
+            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
             );
-            TableRow rowProduit = new TableRow(this);
-
-            rowProduit.setLayoutParams(param);
+            param.setMargins(0,5,0,5);
 
             Spinner tailleSpiner = new Spinner(this);
+            tailleSpiner.setLayoutParams(param);
 
             TextView textLibelle = new TextView(this);
-
-
+            textLibelle.setLayoutParams(param);
             textLibelle.setText(prod.getLibelle());
 
             List<Taille> listeTaille = getTailleProduit(prod);
@@ -194,24 +193,16 @@ public class ProduitActivity extends AppCompatActivity {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             tailleSpiner.setAdapter(adapter);
 
-            TableRow.LayoutParams paramBtn = new TableRow.LayoutParams(
-                    TableRow.LayoutParams.MATCH_PARENT,
-                    TableRow.LayoutParams.WRAP_CONTENT,
-                    1f
-            );
 
             ImageButton addProduit = new ImageButton(this);
-            addProduit.setLayoutParams(paramBtn);
             addProduit.setBackground(null);
             addProduit.setImageResource(R.drawable.add);
 
             ImageButton editProduit = new ImageButton(this);
-            editProduit.setLayoutParams(paramBtn);
             editProduit.setBackground(null);
             editProduit.setImageResource(R.drawable.edit);
 
             ImageButton deleteProduit = new ImageButton(this);
-            deleteProduit.setLayoutParams(paramBtn);
             deleteProduit.setBackground(null);
             deleteProduit.setImageResource(R.drawable.delete);
 
@@ -219,7 +210,7 @@ public class ProduitActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     deleteProduit(prod);
-                    tableProduit.removeView(rowProduit);
+                    linearLayoutScroll.removeView(linearLayoutContenu);
                     Snackbar.make(page, "Le produit "+prod.getLibelle()+" a bien été supprimé !", Snackbar.LENGTH_LONG).show();
                 }
             });
@@ -237,15 +228,31 @@ public class ProduitActivity extends AppCompatActivity {
                 }
             });
 
+            LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+            );
+            param2.width=300;
+            param2.setMargins(0,0,0,0);
 
-            rowProduit.addView(textLibelle);
-            rowProduit.addView(tailleSpiner);
-            rowProduit.addView(addProduit);
-            rowProduit.addView(editProduit);
-            rowProduit.addView(deleteProduit);
+            LinearLayout linearLayoutText = new LinearLayout(this);
+            linearLayoutText.setOrientation(LinearLayout.VERTICAL);
+            linearLayoutText.setLayoutParams(param);
 
-            tableProduit.addView(rowProduit);
+            tailleSpiner.setLayoutParams(param2);
+
+            linearLayoutText.addView(textLibelle);
+            linearLayoutText.addView(tailleSpiner);
+
+            linearLayoutContenu.addView(linearLayoutText);
+            linearLayoutContenu.addView(addProduit);
+            linearLayoutContenu.addView(editProduit);
+            linearLayoutContenu.addView(deleteProduit);
+
+            linearLayoutScroll.addView(linearLayoutContenu);
         }
+        scrollProduit.addView(linearLayoutScroll);
     }
 
     public void popUpEditProduit(Produit prod){
@@ -256,7 +263,6 @@ public class ProduitActivity extends AppCompatActivity {
 
         LinearLayout linearLayout = new LinearLayout(ProduitActivity.this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setGravity(LinearLayout.TEXT_ALIGNMENT_CENTER);
 
 
         EditText editLibelle = new EditText(ProduitActivity.this);
@@ -267,9 +273,14 @@ public class ProduitActivity extends AppCompatActivity {
 
         List<Taille> listeTailleProduit = getTailleProduit(prod);
 
-
         ScrollView scrollTaille = new ScrollView(this);
 
+        ScrollView.LayoutParams param = new ScrollView.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        param.height=350;
+        scrollTaille.setLayoutParams(param);
 
         LinearLayout linearLayoutScroll = new LinearLayout(this);
         linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
@@ -316,7 +327,6 @@ public class ProduitActivity extends AppCompatActivity {
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     Snackbar.make(page, "Aucune taille n'a été sélectionnée ! ", Snackbar.LENGTH_SHORT).show();
                 }
-
             }
         });
     }
@@ -349,6 +359,12 @@ public class ProduitActivity extends AppCompatActivity {
 
         scrollTaille.addView(linearLayoutScroll);
 
+        ScrollView.LayoutParams param = new ScrollView.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        param.height=350;
+        scrollTaille.setLayoutParams(param);
         Button btnCreate = new Button(ProduitActivity.this);
         btnCreate.setText("Créer le produit");
 
@@ -470,7 +486,6 @@ public class ProduitActivity extends AppCompatActivity {
             else{
                 daoProduitListe.create(pl);
                 Snackbar.make(page, "Le produit "+produit.getLibelle()+" a bien été ajouté à votre liste "+listeCourse.getLibelle()+" !", Snackbar.LENGTH_LONG).show();
-
             }
         }
         catch (SQLException | java.sql.SQLException throwables) {

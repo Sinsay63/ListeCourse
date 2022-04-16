@@ -49,52 +49,55 @@ public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
             Produit chocolat = new Produit();
             chocolat.setLibelle("Chocolat");
 
-
             Produit brioche = new Produit();
             brioche.setLibelle("Brioche");
 
-
-            Taille t250 = new Taille();
-            t250.setLibelle("250g");
-
-            Taille t500 = new Taille();
-            t500.setLibelle("500g");
-
-            Taille t1 = new Taille();
-            t1.setLibelle("1kg");
+            Taille t33cl = new Taille("33cl");
+            Taille t50cl = new Taille("50cl");
+            Taille t70cl = new Taille("70cl");
+            Taille t50g = new Taille("50g");
+            Taille t100g = new Taille("100g");
+            Taille t250g = new Taille("250g");
+            Taille t500g = new Taille("500g");
+            Taille t1kg = new Taille("1kg");
 
             Produit_Taille pt = new Produit_Taille();
             pt.setProduit(chocolat);
-            pt.setTaille(t1);
+            pt.setTaille(t1kg);
 
             Produit_Taille pt2 = new Produit_Taille();
             pt2.setProduit(brioche);
-            pt2.setTaille(t250);
+            pt2.setTaille(t250g);
 
             Produit_Taille pt3 = new Produit_Taille();
             pt3.setProduit(brioche);
-            pt3.setTaille(t500);
+            pt3.setTaille(t500g);
 
             Produit_ListeCourse pl1 = new Produit_ListeCourse();
             pl1.setProduit(chocolat);
             pl1.setListeCourse(liste);
             pl1.setQuantite(4);
-            pl1.setTaille(t1);
+            pl1.setTaille(t1kg);
 
             Produit_ListeCourse pl2 = new Produit_ListeCourse();
             pl2.setProduit(brioche);
             pl2.setListeCourse(liste);
             pl2.setQuantite(1);
-            pl2.setTaille(t500);
+            pl2.setTaille(t500g);
 
             daoListe.create(liste);
 
             daoProduit.create(chocolat);
             daoProduit.create(brioche);
 
-            daoTaille.create(t250);
-            daoTaille.create(t500);
-            daoTaille.create(t1);
+            daoTaille.create(t50g);
+            daoTaille.create(t33cl);
+            daoTaille.create(t50cl);
+            daoTaille.create(t70cl);
+            daoTaille.create(t100g);
+            daoTaille.create(t250g);
+            daoTaille.create(t500g);
+            daoTaille.create(t1kg);
 
             daoProduitTaille.create(pt);
             daoProduitTaille.create(pt2);
