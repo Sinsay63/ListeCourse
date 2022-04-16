@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private TableLayout listeCourse;
     private Button btnProduit;
     private Button btnListe;
+    private Button btnRecette;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnProduit = findViewById(R.id.btnProduit);
         btnListe = findViewById(R.id.btnListe);
+        btnRecette = findViewById(R.id.btnRecette);
         btnProduit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -45,6 +47,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent listeIntent = new Intent(MainActivity.this, ListeActivity.class);
                 startActivity(listeIntent);
+            }
+        });
+
+        btnRecette.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent ProduitIntent = new Intent(MainActivity.this, RecetteActivity.class);
+                startActivity(ProduitIntent);
             }
         });
 
