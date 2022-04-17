@@ -6,7 +6,9 @@ import static com.example.listecourse.InfoRecetteActivity.getProduitsByRecette;
 import android.content.Context;
 import android.content.Intent;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -124,10 +126,16 @@ public class RecetteActivity extends AppCompatActivity {
                 );
 
                 TableRow rowRecette = new TableRow(this);
-                rowRecette.setLayoutParams(param);
 
-                TextView textLibelle = new TextView(this);
-                textLibelle.setText(recette.getLibelle());
+                rowRecette.setLayoutParams(param);
+              rowRecette.setGravity(Gravity.CENTER_VERTICAL);
+
+
+              TextView textLibelle = new TextView(this);
+                textLibelle.setText("• "+ recette.getLibelle());
+
+              textLibelle.setTextSize(20);
+              textLibelle.setTextColor(Color.parseColor("#000000"));;
 
                 textLibelle.setOnClickListener(new View.OnClickListener() {
                     @Override
