@@ -6,6 +6,7 @@ import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.ProxyFileDescriptorCallback;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -84,19 +85,19 @@ public class ListeActivity extends AppCompatActivity {
         ArrayList<ListeCourse> listeCourses = getAllListes();
         if(listeCourses != null) {
             for (ListeCourse liste : listeCourses) {
-
                 TableRow.LayoutParams param = new TableRow.LayoutParams(
-                        TableRow.LayoutParams.MATCH_PARENT,
                         TableRow.LayoutParams.WRAP_CONTENT,
-                        4f
+                        TableRow.LayoutParams.WRAP_CONTENT,
+                        5f
                 );
-
-                TableRow rowListe = new TableRow(this);
-                rowListe.setLayoutParams(param);
+                TableRow rowListe = new TableRow( this);
                 rowListe.setGravity(Gravity.CENTER_VERTICAL);
+                rowListe.setLayoutParams(param);
 
                 TextView textLibelle = new TextView(this);
                 textLibelle.setText("• "+liste.getLibelle());
+                textLibelle.setLayoutParams(param);
+
                 textLibelle.setTextSize(20);
                 textLibelle.setTextColor(Color.parseColor("#000000"));;
 

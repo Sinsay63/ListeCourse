@@ -128,14 +128,14 @@ public class RecetteActivity extends AppCompatActivity {
                 TableRow rowRecette = new TableRow(this);
 
                 rowRecette.setLayoutParams(param);
-              rowRecette.setGravity(Gravity.CENTER_VERTICAL);
+                rowRecette.setGravity(Gravity.CENTER_VERTICAL);
 
 
-              TextView textLibelle = new TextView(this);
+                TextView textLibelle = new TextView(this);
                 textLibelle.setText("• "+ recette.getLibelle());
 
-              textLibelle.setTextSize(20);
-              textLibelle.setTextColor(Color.parseColor("#000000"));;
+                textLibelle.setTextSize(20);
+                textLibelle.setTextColor(Color.parseColor("#000000"));;
 
                 textLibelle.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -208,11 +208,18 @@ public class RecetteActivity extends AppCompatActivity {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ListeCourse liste = (ListeCourse) listeSpinner.getSelectedItem();
-                addToList(recette,liste);
-                alertDialog.cancel();
-                Snackbar.make(page, recette.getLibelle()+" a bien été ajouté à "+liste.getLibelle()+ " !", Snackbar.LENGTH_LONG).show();
+                ArrayList<Produit> listeProduits = getProduitsByRecette(recette.getIdRecette(),RecetteActivity.this);
+                if(listeProduits.size() > 0){
+                    ListeCourse liste = (ListeCourse) listeSpinner.getSelectedItem();
+                    addToList(recette,liste);
+                    alertDialog.cancel();
+                    Snackbar.make(page, recette.getLibelle()+" a bien été ajouté à "+liste.getLibelle()+ " !", Snackbar.LENGTH_LONG).show();
+                }
+                else{
+                    Snackbar.make(page, "Aucun produit n'est présent dans la recette !", Snackbar.LENGTH_LONG).show();
+                }
             }
+
         });
     }
 
