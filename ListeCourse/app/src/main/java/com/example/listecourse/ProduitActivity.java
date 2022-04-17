@@ -485,7 +485,6 @@ public class ProduitActivity extends AppCompatActivity {
 
                 daoProduitListe.update(preparedUpdate);
                 Snackbar.make(page, "Le produit "+produit.getLibelle()+" a été mis à jour dans votre liste "+listeCourse.getLibelle()+" !", Snackbar.LENGTH_LONG).show();
-
             }
             else{
                 daoProduitListe.create(pl);

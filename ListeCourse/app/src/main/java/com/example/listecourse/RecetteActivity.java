@@ -152,7 +152,7 @@ public class RecetteActivity extends AppCompatActivity {
 
                 ImageButton btnAddToListe = new ImageButton(this);
                 btnAddToListe.setBackground(null);
-                btnAddToListe.setImageResource(R.drawable.delete);
+                btnAddToListe.setImageResource(R.drawable.add);
 
                 btnAddToListe.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -162,8 +162,9 @@ public class RecetteActivity extends AppCompatActivity {
                 });
 
                 rowRecette.addView(textLibelle);
-                rowRecette.addView(btnDeleteRecette);
                 rowRecette.addView(btnAddToListe);
+                rowRecette.addView(btnDeleteRecette);
+
                 tableRecette.addView(rowRecette);
             }
         }
@@ -189,9 +190,10 @@ public class RecetteActivity extends AppCompatActivity {
         Button btnAdd = new Button(RecetteActivity.this);
         btnAdd.setText("Ajouter la recette");
 
+        linearLayout.addView(listeSpinner);
         linearLayout.addView(btnAdd);
-
         popUpAdd.setView(linearLayout);
+
         final AlertDialog alertDialog = popUpAdd.create();
         alertDialog.show();
 
@@ -199,9 +201,11 @@ public class RecetteActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 ListeCourse liste = (ListeCourse) listeSpinner.getSelectedItem();
+                addToList(recette,liste);
+                alertDialog.cancel();
+                Snackbar.make(page, recette.getLibelle()+" a bien été ajouté à "+liste.getLibelle()+ " !", Snackbar.LENGTH_LONG).show();
             }
         });
-
     }
 
     public void popUpRecette(){
@@ -251,34 +255,31 @@ public class RecetteActivity extends AppCompatActivity {
     }
 
     public void addToList(Recette recette, ListeCourse liste){
-        DataBaseLinker linker = new DataBaseLinker(this);
         ArrayList<Produit> listeProduitsRecette = InfoRecetteActivity.getProduitsByRecette(recette.getIdRecette(),this);
 
-        try {
-            Dao<Produit_ListeCourse, Integer> daoProduitListe = linker.getDao( Produit_ListeCourse.class );
-            if(listeProduitsRecette.size()>0){
-                for(Produit produit : listeProduitsRecette){
-
+        if(listeProduitsRecette.size()>0){
+            for(Produit produit : listeProduitsRecette){
+                Produit_ListeCourse pl = checkIfAlreadyInListe(produit,liste);
+                if(pl != null){
+                    updateProduitListe(produit,liste,pl);
+                }
+                else{
+                    insertProduitListe(produit,liste);
                 }
             }
-
         }
-        catch (SQLException | java.sql.SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-        linker.close();
     }
-    public Produit_ListeCourse checkIfAlreadyInListe(Produit_ListeCourse pl){
+
+    public Produit_ListeCourse checkIfAlreadyInListe(Produit produit, ListeCourse liste){
 
         DataBaseLinker linker = new DataBaseLinker(this);
         try {
             Dao<Produit_ListeCourse, Integer> daoProduitListe = linker.getDao( Produit_ListeCourse.class );
 
             QueryBuilder<Produit_ListeCourse, Integer> queryBuilder = daoProduitListe.queryBuilder();
-            queryBuilder.where().eq("idListeCourse",pl.getListeCourse().getIdListeCourse()).and()
-                    .eq("idProduit",pl.getProduit().getIdProduit()).and()
-                    .eq("idTaille",pl.getTaille().getIdTaille());
+            queryBuilder.where().eq("idListeCourse",liste.getIdListeCourse()).and()
+                    .eq("idProduit",produit.getIdProduit()).and()
+                    .eq("idTaille",produit.getTaille().getIdTaille());
 
             PreparedQuery<Produit_ListeCourse> preparedQuery = queryBuilder.prepare();
 
@@ -364,19 +365,19 @@ public class RecetteActivity extends AppCompatActivity {
 
     }
 
-    /*public void updateProduitListe(Produit produit, ListeCourse liste){
+    public void updateProduitListe(Produit produit, ListeCourse liste, Produit_ListeCourse pl){
         DataBaseLinker linker = new DataBaseLinker(this);
 
         try {
             Dao<Produit_ListeCourse, Integer> daoProduitL = linker.getDao(Produit_ListeCourse.class);
-            int
+            int quantite = produit.getQuantite() + pl.getQuantite();
             UpdateBuilder<Produit_ListeCourse,Integer> updateBuilder = daoProduitL.updateBuilder();
-            updateBuilder.updateColumnValue("quantite",pro).where().eq("idProduit",produit.getIdProduit())
-                    .and().eq("idListeCourse",listeCourse.getIdListeCourse())
-                    .and().eq("idTaille",taille.getIdTaille());
+            updateBuilder.updateColumnValue("quantite",quantite).where().eq("idProduit",produit.getIdProduit())
+                    .and().eq("idListeCourse",liste.getIdListeCourse())
+                    .and().eq("idTaille",produit.getTaille().getIdTaille());
             PreparedUpdate preparedUpdate = updateBuilder.prepare();
 
-            daoProduitListe.update(preparedUpdate);
+            daoProduitL.update(preparedUpdate);
 
         }
         catch (SQLException | java.sql.SQLException throwables) {
@@ -384,5 +385,5 @@ public class RecetteActivity extends AppCompatActivity {
         }
 
         linker.close();
-    }*/
+    }
 }

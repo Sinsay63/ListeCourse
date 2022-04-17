@@ -170,7 +170,6 @@ public class InfoRecetteActivity extends AppCompatActivity {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 tailleSpiner.setAdapter(adapter);
 
-
                 LinearLayout linearLayoutText = new LinearLayout(this);
                 linearLayoutText.setOrientation(LinearLayout.VERTICAL);
                 linearLayoutText.setGravity(Gravity.CENTER_VERTICAL);
@@ -180,7 +179,7 @@ public class InfoRecetteActivity extends AppCompatActivity {
 
                 EditText textQuantite = new EditText(this);
                 textQuantite.setInputType(InputType.TYPE_CLASS_NUMBER);
-                textQuantite.setHint("Qte ");
+                textQuantite.setHint("Qte");
 
                 linearLayoutContenu.addView(rb);
                 linearLayoutContenu.addView(tailleSpiner);
@@ -196,13 +195,15 @@ public class InfoRecetteActivity extends AppCompatActivity {
 
                             prod.setTaille(taille);
                             prod.setQuantite(quantite);
-
                             addProduitToRecette(prod);
+
                             linearLayoutScroll.removeView(linearLayoutContenu);
                             Snackbar.make(page, "Le produit " + prod.getLibelle() + " a bien été ajouté à la liste !", Snackbar.LENGTH_LONG).show();
-                            displayProduitRecette();
+
                             displayProduits();
-                        } else {
+                            displayProduitRecette();
+                        }
+                        else {
                             rb.setChecked(false);
                             Snackbar.make(page, "Veuillez saisir une quantité ! ", Snackbar.LENGTH_LONG).show();
                         }
@@ -245,8 +246,10 @@ public class InfoRecetteActivity extends AppCompatActivity {
         LinearLayout linearLayoutScroll = new LinearLayout(this);
         linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
 
-        if (getProduitsByRecette(idRecette,this).size() > 0) {
-            for (Produit prod : getProduitsByRecette(idRecette,this)) {
+        ArrayList<Produit> listeProduitsRecette = getProduitsByRecette(idRecette,this);
+        Log.e("taille liste produits recette","taille : " + listeProduitsRecette.size());
+        if (listeProduitsRecette.size() > 0) {
+            for (Produit prod : listeProduitsRecette) {
 
                 LinearLayout linearLayoutContenu = new LinearLayout(this);
                 linearLayoutContenu.setGravity(Gravity.CENTER_VERTICAL);
@@ -265,6 +268,7 @@ public class InfoRecetteActivity extends AppCompatActivity {
                         deleteProduitFromRecette(prod);
                         Snackbar.make(page, "Le produit " + prod.getLibelle() + " a bien été retiré !", Snackbar.LENGTH_LONG).show();
                         displayProduits();
+                        displayProduitRecette();
                     }
                 });
 
