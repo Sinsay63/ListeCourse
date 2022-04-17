@@ -12,13 +12,12 @@
     android:id="@+id/textView4"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="24dp"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="28dp"
     android:drawableLeft="@drawable/pomme_black"
     android:text="  Les produits"
     android:textColor="#000000"
-    android:textSize="30dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.135"
+    android:textSize="19dp"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,13 +25,15 @@
     android:id="@+id/btnAddProduit"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="36dp"
+    android:layout_marginStart="17dp"
+    android:layout_marginTop="16dp"
     android:drawableLeft="@drawable/plus"
     android:text="Ajouter un produit"
+    android:textSize="10dp"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.13"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/scrollProduits"
+    app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintStart_toEndOf="@+id/textView4"
+    app:layout_constraintTop_toTopOf="parent"
     tools:ignore="MissingConstraints" />
 
   <ScrollView

@@ -12,13 +12,13 @@
     android:id="@+id/textView4"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="24dp"
+    android:layout_marginTop="28dp"
     android:drawableLeft="@drawable/recette_black"
     android:text="  Mes recettes"
     android:textColor="#000000"
-    android:textSize="30dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.135"
+    android:textSize="19dp"
+    app:layout_constraintEnd_toStartOf="@+id/btnCreateRecette"
+    app:layout_constraintHorizontal_bias="0.516"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
@@ -38,13 +38,14 @@
     android:id="@+id/btnCreateRecette"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="40dp"
+    android:layout_marginTop="16dp"
+
+    android:layout_marginEnd="16dp"
     android:drawableLeft="@drawable/plus"
     android:text="Créer une recette"
+    android:textSize="10dp"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.135"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/tableRecette"
+    app:layout_constraintTop_toTopOf="parent"
     tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
