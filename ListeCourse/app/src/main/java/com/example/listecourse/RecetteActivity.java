@@ -30,7 +30,6 @@ import com.example.listecourse.dao.Produit;
 import com.example.listecourse.dao.Produit_ListeCourse;
 import com.example.listecourse.dao.Produit_Recette;
 import com.example.listecourse.dao.Recette;
-import com.example.listecourse.dao.Taille;
 import com.example.listecourse.tools.DataBaseLinker;
 import com.google.android.material.snackbar.Snackbar;
 import com.j256.ormlite.dao.Dao;
@@ -116,7 +115,7 @@ public class RecetteActivity extends AppCompatActivity {
     public void displayRecettes(){
         tableRecette.removeAllViews();
         ArrayList<Recette> listeRecettes = getAllRecettes();
-        if(listeRecettes != null) {
+        if(listeRecettes.size() >0) {
             for (Recette recette : listeRecettes) {
 
                 TableRow.LayoutParams param = new TableRow.LayoutParams(
@@ -155,6 +154,7 @@ public class RecetteActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         deleteRecette(recette);
                         tableRecette.removeView(rowRecette);
+                        Snackbar.make(page, "La recette " + recette.getLibelle() + " a bien été supprimée !", Snackbar.LENGTH_LONG).show();
                     }
                 });
 
@@ -175,6 +175,15 @@ public class RecetteActivity extends AppCompatActivity {
 
                 tableRecette.addView(rowRecette);
             }
+        }
+        else{
+            TableRow rowRecette = new TableRow(this);
+
+            TextView textVideRecette = new TextView(this);
+            textVideRecette.setTextSize(20);
+            textVideRecette.setText("Aucune recette n'a été créée ! ");
+            rowRecette.addView(textVideRecette);
+            tableRecette.addView(rowRecette);
         }
     }
 
@@ -227,7 +236,7 @@ public class RecetteActivity extends AppCompatActivity {
 
         AlertDialog.Builder popUpEdit = new AlertDialog.Builder(RecetteActivity.this);
 
-        popUpEdit.setTitle("Creation d'une recette");
+        popUpEdit.setTitle("Création d'une recette");
         popUpEdit.setCancelable(true);
 
         LinearLayout linearLayout = new LinearLayout(RecetteActivity.this);

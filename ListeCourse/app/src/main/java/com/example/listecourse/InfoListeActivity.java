@@ -3,15 +3,14 @@ package com.example.listecourse;
 import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Html;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -19,8 +18,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.example.listecourse.dao.ListeCourse;
 import com.example.listecourse.dao.Produit;
 import com.example.listecourse.dao.Produit_ListeCourse;
-import com.example.listecourse.dao.Produit_Taille;
-import com.example.listecourse.dao.Taille;
 import com.example.listecourse.tools.DataBaseLinker;
 import com.google.android.material.snackbar.Snackbar;
 import com.j256.ormlite.dao.Dao;
@@ -45,7 +42,6 @@ public class InfoListeActivity extends AppCompatActivity {
         setContentView(R.layout.info_liste);
         tableInfoListe = findViewById(R.id.tableInfoListe);
         page = findViewById(R.id.page);
-
         displayProduits();
     }
 
@@ -56,14 +52,14 @@ public class InfoListeActivity extends AppCompatActivity {
 
         DataBaseLinker linker = new DataBaseLinker(this);
         try {
-            Dao<Produit_ListeCourse, Integer> daoProduit = linker.getDao( Produit_ListeCourse.class );
+            Dao<Produit_ListeCourse, Integer> daoProduitL = linker.getDao( Produit_ListeCourse.class );
 
-            QueryBuilder<Produit_ListeCourse, Integer> queryBuilder = daoProduit.queryBuilder();
+            QueryBuilder<Produit_ListeCourse, Integer> queryBuilder = daoProduitL.queryBuilder();
             queryBuilder.where().eq("idListeCourse",liste.getIdListeCourse());
 
             PreparedQuery<Produit_ListeCourse> preparedQuery = queryBuilder.prepare();
 
-            listeProduitListe = (ArrayList<Produit_ListeCourse>) daoProduit.query(preparedQuery);
+            listeProduitListe = (ArrayList<Produit_ListeCourse>) daoProduitL.query(preparedQuery);
 
         }
         catch (SQLException | java.sql.SQLException throwables) {
@@ -108,61 +104,86 @@ public class InfoListeActivity extends AppCompatActivity {
         tableInfoListe.removeAllViews();
         ListeCourse liste = getListe();
         ArrayList<Produit> listeProduits = getProduitsByListe(liste);
+        if(listeProduits.size()>0) {
+            for (Produit produit : listeProduits) {
+                TableRow.LayoutParams param = new TableRow.LayoutParams(
+                        TableRow.LayoutParams.MATCH_PARENT,
+                        TableRow.LayoutParams.WRAP_CONTENT,
+                        4f
+                );
 
-        for(Produit produit : listeProduits){
-            TableRow.LayoutParams param = new TableRow.LayoutParams(
-                    TableRow.LayoutParams.MATCH_PARENT,
-                    TableRow.LayoutParams.WRAP_CONTENT,
-                    4f
-            );
+                TableRow rowProduit = new TableRow(this);
+                rowProduit.setLayoutParams(param);
 
-            TableRow rowProduit = new TableRow(this);
-            rowProduit.setLayoutParams(param);
-
-            Produit_ListeCourse pl = getProduitListeByListeAndProduit(liste,produit);
+                Produit_ListeCourse pl = getProduitListeByListeAndProduit(liste, produit);
 
 
-            CheckBox cbCart = new CheckBox(this);
-            cbCart.setText(produit.getLibelle()+" - "+produit.getTaille() + " - x"+produit.getQuantite());
+                CheckBox cbCart = new CheckBox(this);
+                cbCart.setText(produit.getLibelle() + " - " + produit.getTaille() + " - x" + produit.getQuantite());
 
-            if(pl.isCart()){
-                cbCart.setChecked(true);
-            }
-            else{
-                cbCart.setChecked(false);
-            }
-
-            cbCart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if(b){
-                        Snackbar.make(page, "Le produit "+produit.getLibelle()+" a bien été ajouté au caddie !", Snackbar.LENGTH_LONG).show();
-                    }
-                    else{
-                        Snackbar.make(page, "Le produit "+produit.getLibelle()+" a bien été enlevé du caddie !", Snackbar.LENGTH_LONG).show();
-                    }
-                    addRemoveCart(produit,liste,b);
+                if (pl.isCart()) {
+                    cbCart.setChecked(true);
+                } else {
+                    cbCart.setChecked(false);
                 }
-            });
+
+                cbCart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        if (b) {
+                            Snackbar.make(page, "Le produit " + produit.getLibelle() + " a bien été ajouté au caddie !", Snackbar.LENGTH_LONG).show();
+                        } else {
+                            Snackbar.make(page, "Le produit " + produit.getLibelle() + " a bien été enlevé du caddie !", Snackbar.LENGTH_LONG).show();
+                        }
+                        addRemoveCart(produit, liste, b);
+                    }
+                });
 
 
-            ImageButton deleteProduit = new ImageButton(this);
-            deleteProduit.setBackground(null);
-            deleteProduit.setImageResource(R.drawable.delete);
+                ImageButton deleteProduit = new ImageButton(this);
+                deleteProduit.setBackground(null);
+                deleteProduit.setImageResource(R.drawable.delete);
 
-            deleteProduit.setOnClickListener(new View.OnClickListener() {
+                deleteProduit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        deleteProduitFromListe(produit, liste);
+                        tableInfoListe.removeView(rowProduit);
+                        Snackbar.make(page, "Le produit " + produit.getLibelle() + " a bien été supprimé de la liste !", Snackbar.LENGTH_LONG).show();
+                    }
+                });
+
+                rowProduit.addView(cbCart);
+                rowProduit.addView(deleteProduit);
+
+                tableInfoListe.addView(rowProduit);
+            }
+        }
+        else{
+            TextView textVideProduit = new TextView(this);
+            TextView textVideRedirect = new TextView(this);
+            TableRow rowProduit = new TableRow(this);
+            TableRow rowRedirect = new TableRow(this);
+
+            textVideProduit.setTextSize(20);
+            textVideRedirect.setTextSize(20);
+            textVideProduit.setText(Html.fromHtml("Aucun produit n'a été ajouté à la liste ! "));
+            textVideRedirect.setText(Html.fromHtml("Aller au <u><b>Catalogue</b></u> ! "));
+
+            textVideRedirect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    deleteProduitFromListe(produit, liste);
-                    tableInfoListe.removeView(rowProduit);
-                    Snackbar.make(page, "Le produit "+produit.getLibelle()+" a bien été supprimé de la liste !", Snackbar.LENGTH_LONG).show();
+                    Intent ProduitIntent = new Intent(InfoListeActivity.this, ProduitActivity.class);
+                    startActivity(ProduitIntent);
                 }
             });
 
-            rowProduit.addView(cbCart);
-            rowProduit.addView(deleteProduit);
 
+
+            rowProduit.addView(textVideProduit);
+            rowRedirect.addView(textVideRedirect);
             tableInfoListe.addView(rowProduit);
+            tableInfoListe.addView(rowRedirect);
         }
     }
 

@@ -5,11 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.SQLException;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -21,7 +21,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.example.listecourse.dao.ListeCourse;
@@ -39,6 +38,8 @@ import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
 
+
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,19 +176,20 @@ public class ProduitActivity extends AppCompatActivity {
             LinearLayout linearLayoutContenu = new LinearLayout(this);
             linearLayoutContenu.setGravity(Gravity.CENTER_VERTICAL);
 
-            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams paramSpinner = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     1f
             );
-            param.setMargins(0,5,0,5);
+            paramSpinner.setMargins(0,5,0,10);
 
             Spinner tailleSpiner = new Spinner(this);
-            tailleSpiner.setLayoutParams(param);
+            tailleSpiner.setLayoutParams(paramSpinner);
 
             TextView textLibelle = new TextView(this);
-            textLibelle.setLayoutParams(param);
+            textLibelle.setLayoutParams(paramSpinner);
             textLibelle.setText(prod.getLibelle());
+            textLibelle.setTextSize(18);
 
             List<Taille> listeTaille = getTailleProduit(prod,this);
 
@@ -229,8 +231,6 @@ public class ProduitActivity extends AppCompatActivity {
                     }
                 });
 
-
-
             LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -241,7 +241,7 @@ public class ProduitActivity extends AppCompatActivity {
 
             LinearLayout linearLayoutText = new LinearLayout(this);
             linearLayoutText.setOrientation(LinearLayout.VERTICAL);
-            linearLayoutText.setLayoutParams(param);
+            linearLayoutText.setLayoutParams(paramSpinner);
 
             tailleSpiner.setLayoutParams(param2);
 
@@ -249,11 +249,19 @@ public class ProduitActivity extends AppCompatActivity {
             linearLayoutText.addView(tailleSpiner);
 
             linearLayoutContenu.addView(linearLayoutText);
-            linearLayoutContenu.addView(addProduit);
+            if(getAllListes().size()>0) {
+                linearLayoutContenu.addView(addProduit);
+            }
             linearLayoutContenu.addView(editProduit);
             linearLayoutContenu.addView(deleteProduit);
 
-
+            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+            );
+            param.setMargins(0,10,0,10);
+            linearLayoutContenu.setLayoutParams(param);
             linearLayoutScroll.addView(linearLayoutContenu);
         }
         scrollProduit.addView(linearLayoutScroll);
@@ -261,8 +269,14 @@ public class ProduitActivity extends AppCompatActivity {
 
     public void popUpEditProduit(Produit prod){
         AlertDialog.Builder popUpEdit = new AlertDialog.Builder(ProduitActivity.this);
+        TextView titrePop = new TextView(this);
+        titrePop.setText("Edition du produit "+prod.getLibelle());
+        titrePop.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        titrePop.setTextSize(25);
+        titrePop.setTypeface(null,Typeface.BOLD);
+        titrePop.setPaintFlags(titrePop.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
-        popUpEdit.setTitle("Edition du produit "+prod.getLibelle());
+        popUpEdit.setCustomTitle(titrePop);
         popUpEdit.setCancelable(true);
 
         LinearLayout linearLayout = new LinearLayout(ProduitActivity.this);
@@ -272,8 +286,10 @@ public class ProduitActivity extends AppCompatActivity {
         EditText editLibelle = new EditText(ProduitActivity.this);
         editLibelle.setText(prod.getLibelle());
 
-        Button btnUpdate = new Button(ProduitActivity.this);
-        btnUpdate.setText("Mettre à jour");
+        TextView textTaille = new TextView(ProduitActivity.this);
+        textTaille.setText("Sélectionner une taille minimum :");
+
+
 
         List<Taille> listeTailleProduit = getTailleProduit(prod,this);
 
@@ -285,6 +301,10 @@ public class ProduitActivity extends AppCompatActivity {
         );
         param.height=350;
         scrollTaille.setLayoutParams(param);
+        scrollTaille.setScrollbarFadingEnabled(false);
+
+        Button btnUpdate = new Button(ProduitActivity.this);
+        btnUpdate.setText("Mettre à jour");
 
         LinearLayout linearLayoutScroll = new LinearLayout(this);
         linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
@@ -304,6 +324,7 @@ public class ProduitActivity extends AppCompatActivity {
 
         scrollTaille.addView(linearLayoutScroll);
         linearLayout.addView(editLibelle);
+        linearLayout.addView(textTaille);
         linearLayout.addView(scrollTaille);
         linearLayout.addView(btnUpdate);
 
@@ -314,22 +335,33 @@ public class ProduitActivity extends AppCompatActivity {
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int nbChecked=0;
-                prod.setLibelle(editLibelle.getText().toString());
-                for(CheckBox checkBox: listeCheckBox){
-                    if(checkBox.isChecked()){
-                        nbChecked++;
-                    }
-                }
-                if(nbChecked>0){
-                    editProduit(prod,listeCheckBox);
-                    displayProduit();
-                    alertDialog.cancel();
-                }
-                else{
+                int nbChecked = 0;
+                String libelle = editLibelle.getText().toString();
+
+                boolean existLibelle = checkExistLibelleProduit(libelle);
+                if (existLibelle) {
                     InputMethodManager imm = (InputMethodManager) ProduitActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    Snackbar.make(page, "Aucune taille n'a été sélectionnée ! ", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(page, "Ce nom de produit existe déjà ! ", Snackbar.LENGTH_SHORT).show();
+                }
+                else{
+                    libelle = libelle.substring(0, 1).toUpperCase() + libelle.substring(1).toLowerCase();
+                    prod.setLibelle(libelle);
+
+                    for (CheckBox checkBox : listeCheckBox) {
+                        if (checkBox.isChecked()) {
+                            nbChecked++;
+                        }
+                    }
+                    if (nbChecked > 0) {
+                        editProduit(prod, listeCheckBox);
+                        displayProduit();
+                        alertDialog.cancel();
+                    } else {
+                        InputMethodManager imm = (InputMethodManager) ProduitActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        Snackbar.make(page, "Aucune taille n'a été sélectionnée ! ", Snackbar.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -339,7 +371,14 @@ public class ProduitActivity extends AppCompatActivity {
 
         AlertDialog.Builder popUpCreate = new AlertDialog.Builder(ProduitActivity.this);
 
-        popUpCreate.setTitle("Creation d'un produit");
+        TextView titrePop = new TextView(this);
+        titrePop.setText("Création d'un produit");
+        titrePop.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        titrePop.setTextSize(25);
+        titrePop.setTypeface(null,Typeface.BOLD);
+        titrePop.setPaintFlags(titrePop.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        popUpCreate.setCustomTitle(titrePop);
         popUpCreate.setCancelable(true);
 
         LinearLayout linearLayout = new LinearLayout(ProduitActivity.this);
@@ -348,9 +387,20 @@ public class ProduitActivity extends AppCompatActivity {
         EditText editLibelle = new EditText(ProduitActivity.this);
         editLibelle.setHint("Saisir un libelle");
 
+        ScrollView.LayoutParams paramLibelle = new ScrollView.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        paramLibelle.setMargins(0,25,0,15);
+        editLibelle.setLayoutParams(paramLibelle);
+
+        TextView textTaille = new TextView(ProduitActivity.this);
+        textTaille.setText("Sélectionner une taille minimum :");
+
         ScrollView scrollTaille = new ScrollView(this);
         LinearLayout linearLayoutScroll = new LinearLayout(this);
         linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
+        scrollTaille.setScrollbarFadingEnabled(false);
 
         ArrayList<CheckBox> listeCheckBox = new ArrayList<>();
 
@@ -367,12 +417,13 @@ public class ProduitActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
         );
-        param.height=350;
+        param.height=333;
         scrollTaille.setLayoutParams(param);
         Button btnCreate = new Button(ProduitActivity.this);
         btnCreate.setText("Créer le produit");
 
         linearLayout.addView(editLibelle);
+        linearLayout.addView(textTaille);
         linearLayout.addView(scrollTaille);
         linearLayout.addView(btnCreate);
 
@@ -384,7 +435,26 @@ public class ProduitActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String libelle = editLibelle.getText().toString();
-                if(!libelle.equals("")) {
+                boolean existLibelle = false;
+
+                //enlève les accents et lowercase
+                String newLibelle = Normalizer.normalize(libelle, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+
+                //mets la première lettre en maj
+                libelle = libelle.substring(0, 1).toUpperCase() + libelle.substring(1).toLowerCase();
+
+                for(Produit existProduit : getAllProduits(ProduitActivity.this)){
+                    String oldLibelle = Normalizer.normalize(existProduit.getLibelle(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+                    if(oldLibelle.equals(newLibelle)){
+                        existLibelle=true;
+                        InputMethodManager imm = (InputMethodManager) ProduitActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        Snackbar.make(page, "Ce nom de produit existe déjà ! ", Snackbar.LENGTH_SHORT).show();
+                        break;
+                    }
+                }
+
+                if(!libelle.equals("") && !existLibelle) {
                     Produit produit = new Produit(libelle);
                     int nbChecked = 0;
                     for (CheckBox checkBox : listeCheckBox) {
@@ -392,6 +462,7 @@ public class ProduitActivity extends AppCompatActivity {
                             nbChecked++;
                         }
                     }
+
                     if (nbChecked > 0) {
                         produit = createProduit(produit);
                         createProduitTaille(produit,listeCheckBox);
@@ -426,48 +497,67 @@ public class ProduitActivity extends AppCompatActivity {
     }
 
     public void popUpProduitInListe(Produit prod,Taille taille){
-        AlertDialog.Builder popUpEdit = new AlertDialog.Builder(ProduitActivity.this);
+        AlertDialog.Builder popUpAdd = new AlertDialog.Builder(ProduitActivity.this);
 
-        popUpEdit.setTitle("Ajout de "+prod.getLibelle() + " à une liste.");
-        popUpEdit.setCancelable(true);
+        TextView titrePop = new TextView(this);
+        titrePop.setText("Ajout de "+prod.getLibelle() + " à une liste.");
+        titrePop.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        titrePop.setTextSize(25);
+        titrePop.setTypeface(null,Typeface.BOLD);
+        titrePop.setPaintFlags(titrePop.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        popUpAdd.setCustomTitle(titrePop);
+        popUpAdd.setCancelable(true);
 
         LinearLayout linearLayout = new LinearLayout(ProduitActivity.this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         linearLayout.setGravity(LinearLayout.TEXT_ALIGNMENT_CENTER);
 
 
-        EditText textQuantite = new EditText(ProduitActivity.this);
-        textQuantite.setInputType(InputType.TYPE_CLASS_NUMBER);
-        textQuantite.setHint("Saisir une quantité ");
+        EditText editQuantite = new EditText(ProduitActivity.this);
+        editQuantite.setInputType(InputType.TYPE_CLASS_NUMBER);
+        editQuantite.setHint("Saisir une quantité ");
+
+        ScrollView.LayoutParams paramLibelle = new ScrollView.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        paramLibelle.setMargins(0,25,0,15);
+        editQuantite.setLayoutParams(paramLibelle);
+
+
+
+        TextView textSpinner = new TextView(this);
+        textSpinner.setText("Sélectionner une liste de courses :");
 
         Spinner listeSpinner = new Spinner(this);
         List<ListeCourse> listeListeCourse = getAllListes();
         ArrayAdapter adapter2 = new ArrayAdapter(this,android.R.layout.simple_spinner_item,listeListeCourse);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_item);
         listeSpinner.setAdapter(adapter2);
+        listeSpinner.setPadding(0,10,0,25);
 
         Button btnUpdate = new Button(ProduitActivity.this);
         btnUpdate.setText("Ajouter à la liste");
 
-        linearLayout.addView(textQuantite);
+        linearLayout.addView(editQuantite);
+        linearLayout.addView(textSpinner);
         linearLayout.addView(listeSpinner);
         linearLayout.addView(btnUpdate);
 
-        popUpEdit.setView(linearLayout);
-        final AlertDialog alertDialog = popUpEdit.create();
+        popUpAdd.setView(linearLayout);
+        final AlertDialog alertDialog = popUpAdd.create();
         alertDialog.show();
 
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int quantite = Integer.parseInt(textQuantite.getText().toString());
+                int quantite = Integer.parseInt(editQuantite.getText().toString());
                 ListeCourse listeCourse = (ListeCourse) listeSpinner.getSelectedItem();
                 addToList(prod,listeCourse,taille,quantite);
                 alertDialog.cancel();
             }
         });
-
-
     }
 
     public boolean addToList(Produit produit,ListeCourse listeCourse, Taille taille, int quantite){
@@ -591,5 +681,19 @@ public class ProduitActivity extends AppCompatActivity {
             throwables.printStackTrace();
         }
         linker.close();
+    }
+
+    public boolean checkExistLibelleProduit(String libelle){
+        boolean exist = false;
+        String newLibelle = Normalizer.normalize(libelle, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+
+        for(Produit existProduit : getAllProduits(ProduitActivity.this)){
+            String oldLibelle = Normalizer.normalize(existProduit.getLibelle(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+            if(oldLibelle.equals(newLibelle)){
+                exist=true;
+                break;
+            }
+        }
+        return exist;
     }
 }

@@ -5,18 +5,13 @@ import android.content.Intent;
 import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.os.ProxyFileDescriptorCallback;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -26,19 +21,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.listecourse.dao.ListeCourse;
-import com.example.listecourse.dao.Produit;
 import com.example.listecourse.dao.Produit_ListeCourse;
-import com.example.listecourse.dao.Taille;
 import com.example.listecourse.tools.DataBaseLinker;
 import com.google.android.material.snackbar.Snackbar;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ListeActivity extends AppCompatActivity {
 
@@ -83,14 +73,17 @@ public class ListeActivity extends AppCompatActivity {
     public void displayListes(){
         tableListe.removeAllViews();
         ArrayList<ListeCourse> listeCourses = getAllListes();
-        if(listeCourses != null) {
+        if(listeCourses.size()>0) {
             for (ListeCourse liste : listeCourses) {
+
                 TableRow.LayoutParams param = new TableRow.LayoutParams(
+                        TableRow.LayoutParams.MATCH_PARENT,
                         TableRow.LayoutParams.WRAP_CONTENT,
-                        TableRow.LayoutParams.WRAP_CONTENT,
-                        5f
+                        4f
                 );
+
                 TableRow rowListe = new TableRow( this);
+
                 rowListe.setGravity(Gravity.CENTER_VERTICAL);
                 rowListe.setLayoutParams(param);
 
@@ -120,6 +113,7 @@ public class ListeActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         deleteListe(liste);
                         tableListe.removeView(rowListe);
+                        Snackbar.make(page, "La liste " + liste.getLibelle() + " a bien été supprimée !", Snackbar.LENGTH_LONG).show();
                     }
                 });
 
@@ -127,6 +121,14 @@ public class ListeActivity extends AppCompatActivity {
                 rowListe.addView(deleteProduit);
                 tableListe.addView(rowListe);
             }
+        }
+        else{
+            TableRow rowListe = new TableRow(this);
+
+            TextView textVideListe = new TextView(this);
+            textVideListe.setText("Aucune liste n'a été créée ! ");
+            rowListe.addView(textVideListe);
+            tableListe.addView(rowListe);
         }
     }
     public void popUpListe(){

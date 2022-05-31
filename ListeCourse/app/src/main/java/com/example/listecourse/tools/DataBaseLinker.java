@@ -13,11 +13,9 @@ import com.example.listecourse.dao.Recette;
 import com.example.listecourse.dao.Taille;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.query.In;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-import java.util.prefs.PreferenceChangeEvent;
 
 public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
 
@@ -48,7 +46,6 @@ public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
             Dao<Recette, Integer> daoRecette = this.getDao(Recette.class);
             Dao<Produit_Recette, Integer> daoProduitRecette = this.getDao(Produit_Recette.class);
 
-            ListeCourse liste = new ListeCourse("Course de Vendredi");
             Recette crepe = new Recette("Pâte à crêpe");
 
             Produit oeufs = new Produit("Oeufs");
@@ -116,18 +113,6 @@ public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
             pt16.setProduit(sucre);
             pt16.setTaille(t250g);
 
-            Produit_ListeCourse pl1 = new Produit_ListeCourse();
-            pl1.setListeCourse(liste);
-            pl1.setQuantite(2);
-            pl1.setTaille(t1kg);
-
-            Produit_ListeCourse pl2 = new Produit_ListeCourse();
-            pl2.setProduit(cocacola);
-            pl2.setListeCourse(liste);
-            pl2.setQuantite(5);
-            pl2.setTaille(t50cl);
-
-
             Produit_Recette pr = new Produit_Recette();
             pr.setProduit(oeufs);
             pr.setRecette(crepe);
@@ -158,8 +143,6 @@ public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
             pr.setQuantite(1);
             pr.setTaille(t250g);
 
-            daoListe.create(liste);
-            daoRecette.create(crepe);
 
             daoProduit.create(farine);
             daoProduit.create(lait);
@@ -194,14 +177,14 @@ public class DataBaseLinker extends OrmLiteSqliteOpenHelper {
             daoProduitTaille.create(pt15);
             daoProduitTaille.create(pt16);
 
-            daoProduitListe.create(pl1);
-            daoProduitListe.create(pl2);
+            daoRecette.create(crepe);
 
             daoProduitRecette.create(pr);
             daoProduitRecette.create(pr2);
             daoProduitRecette.create(pr3);
             daoProduitRecette.create(pr4);
             daoProduitRecette.create(pr5);
+
 
 
 

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -36,7 +35,6 @@ import com.j256.ormlite.stmt.PreparedDelete;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -247,7 +245,6 @@ public class InfoRecetteActivity extends AppCompatActivity {
         linearLayoutScroll.setOrientation(LinearLayout.VERTICAL);
 
         ArrayList<Produit> listeProduitsRecette = getProduitsByRecette(idRecette,this);
-        Log.e("taille liste produits recette","taille : " + listeProduitsRecette.size());
         if (listeProduitsRecette.size() > 0) {
             for (Produit prod : listeProduitsRecette) {
 
